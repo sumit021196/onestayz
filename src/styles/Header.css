@@ -1,11 +1,19 @@
 .header {
-    background-color: var(--color-white);
-    box-shadow: var(--shadow-sm);
-    position: sticky;
+    background-color: transparent;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
     z-index: 1000;
-    padding: 1.25rem 0;
-    transition: var(--transition);
+    padding: var(--spacing-sm) 0;
+    transition: all 0.4s ease;
+}
+
+.header.scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-xs) 0;
 }
 
 .header-container {
@@ -16,26 +24,28 @@
 
 .logo {
     font-family: var(--font-heading);
-    font-size: 1.75rem;
+    font-size: var(--text-xl);
     font-weight: 700;
     color: var(--color-primary);
     letter-spacing: -0.02em;
     text-transform: uppercase;
+    z-index: 1001;
 }
 
 .nav-list {
     display: flex;
-    gap: 2.5rem;
+    gap: var(--spacing-md);
     align-items: center;
 }
 
 .nav-list a {
-    font-weight: 600;
+    font-weight: 500;
     color: var(--color-text);
-    font-size: 0.9rem;
+    font-size: var(--text-sm);
     text-transform: uppercase;
     letter-spacing: 1px;
     position: relative;
+    transition: color 0.3s ease;
 }
 
 .nav-list a:not(.btn)::after {
@@ -44,7 +54,7 @@
     bottom: -5px;
     left: 0;
     width: 0;
-    height: 2px;
+    height: 1px;
     background-color: var(--color-secondary);
     transition: width 0.3s ease;
 }
@@ -54,52 +64,79 @@
 }
 
 .nav-list a:hover {
-    color: var(--color-primary);
+    color: var(--color-secondary);
 }
 
+/* Mobile Menu Toggle */
 .menu-toggle {
     display: none;
+    /* Hidden by default for desktop */
     background: none;
     border: none;
     flex-direction: column;
     gap: 6px;
+    z-index: 1001;
+    padding: 0.5rem;
 }
 
 .bar {
-    width: 30px;
+    width: 24px;
     height: 2px;
     background-color: var(--color-primary);
+    transition: all 0.3s ease;
+}
+
+/* Hamburger Animation */
+.menu-toggle.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.menu-toggle.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
 }
 
 @media (max-width: 768px) {
     .menu-toggle {
         display: flex;
+        /* Show on mobile */
     }
 
     .nav {
-        position: absolute;
-        top: 100%;
+        position: fixed;
+        top: 0;
         left: 0;
         width: 100%;
-        background-color: var(--color-white);
-        padding: 2rem;
-        box-shadow: var(--shadow-md);
-        transform: translateY(-100%);
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.3s ease;
-        z-index: 999;
+        height: 100vh;
+        background-color: var(--color-background);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        /* Removed CSS transitions/transforms as Framer Motion handles them */
     }
 
     .nav.open {
-        transform: translateY(0);
-        opacity: 1;
         pointer-events: all;
     }
 
     .nav-list {
         flex-direction: column;
-        gap: 1.5rem;
+        gap: var(--spacing-md);
         text-align: center;
+    }
+
+    .nav-list a {
+        font-family: var(--font-heading);
+        font-size: var(--text-2xl);
+        color: var(--color-primary);
+        font-weight: 400;
+    }
+
+    .nav-list .btn {
+        margin-top: var(--spacing-sm);
     }
 }

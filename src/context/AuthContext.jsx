@@ -29,23 +29,42 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        let mounted = true;
+
         // Check active sessions and sets the user
         const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                setUser(session.user);
-                await fetchProfile(session.user.id);
-            } else {
-                setUser(null);
-                setRole(null);
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+
+                if (mounted) {
+                    if (session?.user) {
+                        setUser(session.user);
+                        await fetchProfile(session.user.id);
+                    } else {
+                        setUser(null);
+                        setRole(null);
+                    }
+                }
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+                if (mounted) {
+                    setUser(null);
+                    setRole(null);
+                }
+            } finally {
+                if (mounted) {
+                    setLoading(false);
+                }
             }
-            setLoading(false);
         };
 
         getSession();
 
         // Listen for changes on auth state
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (!mounted) return;
+
             if (session?.user) {
                 setUser(session.user);
                 await fetchProfile(session.user.id);
@@ -56,7 +75,10 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
     const value = {
@@ -73,7 +95,13 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {loading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#fdfbf7', color: '#0a192f' }}>
+                    Loading...
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     );
 };
